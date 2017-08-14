@@ -2,7 +2,10 @@
 
 namespace UncleCheese\DisplayLogic;
 
-use SilverStripe\Core\Object;
+use SilverStripe\Core\Config\Configurable;
+use SilverStripe\Core\Extensible;
+use SilverStripe\Core\Injector\Injectable;
+
 
 /**
  *  Defines a criterion that controls the display of a given
@@ -11,9 +14,11 @@ use SilverStripe\Core\Object;
  * @package  display_logic
  * @author  Uncle Cheese <unclecheese@leftandmain.com>
  */
-class DisplayLogicCriterion extends Object {
+class DisplayLogicCriterion {
 
-
+	use Extensible;
+	use Injectable;
+	use Configurable;
 	/**
 	 * The name of the form field that is controlling the display
 	 * @var string
@@ -56,11 +61,11 @@ class DisplayLogicCriterion extends Object {
 	 * @param DisplayLogicCriteria $set      The parent criteria set
 	 */
 	public function __construct($master, $operator, $value, DisplayLogicCriteria $set) {
-		parent::__construct();
 		$this->master = $master;
 		$this->operator = $operator;
 		$this->value = $value;
 		$this->set = $set;
+		$this->constructExtensions();
 	}
 
 

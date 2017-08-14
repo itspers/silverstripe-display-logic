@@ -3,7 +3,9 @@
 namespace UncleCheese\DisplayLogic;
 
 use SilverStripe\Core\Config\Config;
-use SilverStripe\Core\Object;
+use SilverStripe\Core\Config\Configurable;
+use SilverStripe\Core\Extensible;
+use SilverStripe\Core\Injector\Injectable;
 use SilverStripe\Forms\FormField;
 
 /**
@@ -13,8 +15,11 @@ use SilverStripe\Forms\FormField;
  * @package  display_logic
  * @author  Uncle Cheese <unclecheese@leftandmain.com>
  */
-class DisplayLogicCriteria extends Object {
+class DisplayLogicCriteria {
 
+	use Extensible;
+	use Injectable;
+    use Configurable;
 
 	/**
 	 * The name of the form field that depends on the criteria
@@ -83,7 +88,8 @@ class DisplayLogicCriteria extends Object {
 	 * @param [type]    $parent The parent {@link DisplayLogicCriteria}
 	 */
 	public function __construct(FormField $slave, $master, $parent = null) {
-		parent::__construct();
+//		parent::__construct();
+		$this->constructExtensions();
 		$this->slave = $slave;
 		$this->master = $master;
 		$this->parent = $parent;
