@@ -2,6 +2,7 @@
 
 namespace UncleCheese\DisplayLogic\Extension;
 
+use SilverStripe\Forms\FormField;
 use UncleCheese\DisplayLogic\DisplayLogicCriteria;
 use SilverStripe\ORM\DataExtension;
 use SilverStripe\View\Requirements;
@@ -21,10 +22,24 @@ class DisplayLogicFormField extends DataExtension {
 	 * The {@link DisplayLogicCriteria} that is evaluated to determine whether this field should display
 	 * @var DisplayLogicCriteria
 	 */
-	protected $displayLogicCriteria = null;
+//	public $displayLogicCriteria = null;
 
 
 
+	public static $criterias = array();
+
+
+	public function getCriteria() {
+		$key = md5($this->owner->Name);
+		if (isset(DisplayLogicFormField::$criterias[$key])) return DisplayLogicFormField::$criterias[$key];
+		return null;
+	}
+
+	public function setCriteria($criteria){
+		$key = md5($this->owner->Name);
+		DisplayLogicFormField::$criterias[$key] = $criteria;
+		return DisplayLogicFormField::$criterias[$key];
+	}
 
 	/**
 	 * If the criteria evaluate true, the field should display
@@ -32,14 +47,16 @@ class DisplayLogicFormField extends DataExtension {
 	 * @return DisplayLogicCriteria
 	 */
 	public function displayIf($master) {
-		$class ="display-logic display-logic-hidden display-logic-display";
+
+
+		$class = "display-logic display-logic-hidden display-logic-display";
 		$this->owner->addExtraClass($class);
 
 		if($this->owner->hasMethod('addHolderClass')) {
 			$this->owner->addHolderClass($class);
 		}
 
-		return $this->displayLogicCriteria = DisplayLogicCriteria::create($this->owner, $master);
+		return $this->setCriteria(DisplayLogicCriteria::create($this->owner, $master));
 	}
 
 
@@ -58,7 +75,9 @@ class DisplayLogicFormField extends DataExtension {
 			$this->owner->addHolderClass($class);
 		}
 
-		return $this->displayLogicCriteria = DisplayLogicCriteria::create($this->owner, $master);
+
+
+		return $this->setCriteria(DisplayLogicCriteria::create($this->owner, $master));
 	}
 
 
@@ -83,7 +102,7 @@ class DisplayLogicFormField extends DataExtension {
 	 * @return DisplayLogicCriteria
 	 */
 	public function hideUnless($master) {
-		return $this->owner->displayIf($master);
+		return $this->displayIf($master);
 	}
 
 
@@ -93,11 +112,12 @@ class DisplayLogicFormField extends DataExtension {
 	 * @param DisplayLogicCriteria $c
 	 */
 	public function setDisplayLogicCriteria(DisplayLogicCriteria $c) {
-		$this->displayLogicCriteria = $c;
+
+		$this->setCriteria($c);
 	}
 
 	public function getDisplayLogicCriteria() {
-		return $this->displayLogicCriteria;
+		return $this->getCriteria();
 	}
 
 
@@ -107,8 +127,8 @@ class DisplayLogicFormField extends DataExtension {
 	 * @return  string
 	 */
 	public function DisplayLogicMasters() {
-		if($this->displayLogicCriteria) {
-			return implode(",",array_unique($this->displayLogicCriteria->getMasterList()));			
+		if($this->getCriteria()) {
+			return implode(",",array_unique($this->getCriteria()->getMasterList()));
 		}
 	}
 
@@ -119,8 +139,8 @@ class DisplayLogicFormField extends DataExtension {
 	 * @return string
 	 */
 	public function DisplayLogicAnimation() {
-		if($this->displayLogicCriteria) {
-			return $this->displayLogicCriteria->getAnimation();
+		if($this->getCriteria()) {
+			return $this->getCriteria()->getAnimation();
 		}
 	}
 
@@ -131,20 +151,31 @@ class DisplayLogicFormField extends DataExtension {
 	 * @return  string
 	 */
 	public function DisplayLogic() {
-		if($this->displayLogicCriteria) {
+
+
+
+		if($this->getCriteria()) {
 //			if(!Config::inst()->get('DisplayLogic', 'jquery_included')) {
 //				Requirements::javascript(ADMIN_THIRDPARTY_DIR.'/jquery/jquery.js');
 //			}
 //			Requirements::javascript(ADMIN_THIRDPARTY_DIR.'/jquery-entwine/dist/jquery.entwine-dist.js');
 			Requirements::javascript('unclecheese/display-logic:javascript/display_logic.js');
-//			Requirements::css(DISPLAY_LOGIC_DIR.'/css/display_logic.css');
-			return $this->displayLogicCriteria->toScript();
+			Requirements::css('unclecheese/display-logic:css/display_logic.css');
+			Requirements::set_force_js_to_bottom(true);
+			return $this->getCriteria()->toScript();
 		}
 		
 		return false;
 	}
-	public function onBeforeRender($field) {
-		if($logic = $field->DisplayLogic()) {			
+
+	/**
+	 * @param FormField $field
+	 */
+	public function onBeforeRender(&$field) {
+
+
+
+		if($logic = $this->DisplayLogic()) {
 			$field->setAttribute('data-display-logic-masters', $field->DisplayLogicMasters());
 			$field->setAttribute('data-display-logic-eval', $logic);
 			$field->setAttribute('data-display-logic-animation', $field->DisplayLogicAnimation());

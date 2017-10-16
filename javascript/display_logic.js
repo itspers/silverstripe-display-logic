@@ -35,6 +35,8 @@
 		},
 
 		nameToHolder: function (name) {
+
+
 			name = this.escapeSelector(name);
 
 			// SS 3.2+, Convert::raw2htmlid() logic

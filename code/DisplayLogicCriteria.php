@@ -89,7 +89,7 @@ class DisplayLogicCriteria {
 	 */
 	public function __construct(FormField $slave, $master, $parent = null) {
 //		parent::__construct();
-		$this->constructExtensions();
+//		$this->constructExtensions();
 		$this->slave = $slave;
 		$this->master = $master;
 		$this->parent = $parent;
@@ -287,7 +287,7 @@ class DisplayLogicCriteria {
 			$script .= $first ? "" :  " {$this->getLogicalOperator()} ";
 			$script .= $c->toScript();
 			$first = false;
-		}	
+		}
 		$script .= ")";
 		return $script;
 	}
@@ -297,7 +297,7 @@ class DisplayLogicCriteria {
 
 	/**
 	 * Gets a list of all the master fields in this criteria set
-	 * @return string
+	 * @return array
 	 */
 	public function getMasterList() {
 		$list = array ();
