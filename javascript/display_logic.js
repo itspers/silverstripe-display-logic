@@ -1,4 +1,15 @@
 (function($) {
+
+
+
+    $(function () {
+        $('.ui-tabs-anchor').on('click', function () {
+            setTimeout(function () {
+                jQuery(".display-logic-master").notify();
+            }, 400);
+        });
+    });
+
 	$('div.display-logic, div.display-logic-master').entwine({
 
 		escapeSelector: function(selector) {
@@ -351,5 +362,9 @@
 			return this.parents('.field');
 		}
 	});
+
+	setTimeout(function () {
+        jQuery(".display-logic-master").notify();
+    }, 400)
 
 })(jQuery);

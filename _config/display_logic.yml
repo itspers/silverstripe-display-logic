@@ -19,7 +19,7 @@ UncleCheese\DisplayLogic\DisplayLogicCriteria:
     - toggle
     - slide
     - fade
-  default_animation: fade
+  default_animation: toggle
     
 SilverStripe\Forms\FormField:
   extensions:
