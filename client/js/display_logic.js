@@ -1,11 +1,11 @@
 (function($) {
 
 
-
     $(function () {
         $('.ui-tabs-anchor').on('click', function () {
             setTimeout(function () {
                 jQuery(".display-logic-master").notify();
+                console.log('tab click');
             }, 400);
         });
     });
