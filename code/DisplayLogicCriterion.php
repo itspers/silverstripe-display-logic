@@ -1,12 +1,5 @@
 <?php
 
-namespace UncleCheese\DisplayLogic;
-
-use SilverStripe\Core\Config\Configurable;
-use SilverStripe\Core\Extensible;
-use SilverStripe\Core\Injector\Injectable;
-
-
 /**
  *  Defines a criterion that controls the display of a given
  *  {@link FormField} object
@@ -14,18 +7,27 @@ use SilverStripe\Core\Injector\Injectable;
  * @package  display_logic
  * @author  Uncle Cheese <unclecheese@leftandmain.com>
  */
-class DisplayLogicCriterion {
 
-	use Extensible;
+namespace UncleCheese\DisplayLogic;
+
+use SilverStripe\Core\Injector\Injectable;
+use SilverStripe\Core\Extensible;
+use SilverStripe\Core\Config\Configurable;
+
+class DisplayLogicCriterion
+{
+
+	use Extensible {
+		defineMethods as extensibleDefineMethods;
+	}
 	use Injectable;
 	use Configurable;
+
 	/**
 	 * The name of the form field that is controlling the display
 	 * @var string
 	 */
 	protected $master = null;
-
-
 
 	/**
 	 * The comparison function to use, e.g. "EqualTo"
@@ -33,25 +35,17 @@ class DisplayLogicCriterion {
 	 */
 	protected $operator = null;
 
-
-
-
 	/**
 	 * The value to compare to
 	 * @var mixed
 	 */
 	protected $value = null;
 
-
-
 	/**
 	 * The parent {@link DisplayLogicCriteria}
 	 * @var DisplayLogicCriteria
 	 */
 	protected $set = null;
-
-
-
 
 	/**
 	 * Constructor
@@ -60,39 +54,38 @@ class DisplayLogicCriterion {
 	 * @param string               $value    The value to compare to
 	 * @param DisplayLogicCriteria $set      The parent criteria set
 	 */
-	public function __construct($master, $operator, $value, DisplayLogicCriteria $set) {
+	public function __construct($master, $operator, $value, DisplayLogicCriteria $set)
+	{
 		$this->master = $master;
 		$this->operator = $operator;
 		$this->value = $value;
 		$this->set = $set;
-		$this->constructExtensions();
 	}
-
-
-
 
 	/**
 	 * Accessor for the master field
 	 * @return string
 	 */
-	public function getMaster() {
+	public function getMaster()
+	{
 		return $this->master;
 	}
 
 	/**
 	 * @return $this
 	 */
-	public function setMaster($fieldName) {
+	public function setMaster($fieldName)
+	{
 		$this->master = $fieldName;
 		return $this;
 	}
-
 
 	/**
 	 * Creates a JavaScript-readable representation of this criterion
 	 * @return string
 	 */
-	public function toScript() {		
+	public function toScript()
+	{
 		return sprintf(
 			"this.findHolder('%s').evaluate%s('%s')",
 			$this->master,

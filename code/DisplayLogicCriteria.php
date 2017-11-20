@@ -1,13 +1,5 @@
 <?php
 
-namespace UncleCheese\DisplayLogic;
-
-use SilverStripe\Core\Config\Config;
-use SilverStripe\Core\Config\Configurable;
-use SilverStripe\Core\Extensible;
-use SilverStripe\Core\Injector\Injectable;
-use SilverStripe\Forms\FormField;
-
 /**
  *  Defines a set of criteria that control the display of a given
  *  {@link FormField} object
@@ -15,11 +7,24 @@ use SilverStripe\Forms\FormField;
  * @package  display_logic
  * @author  Uncle Cheese <unclecheese@leftandmain.com>
  */
-class DisplayLogicCriteria {
 
-	use Extensible;
+namespace UncleCheese\DisplayLogic;
+
+use SilverStripe\Core\Injector\Injectable;
+use SilverStripe\Core\Extensible;
+use SilverStripe\Core\Config\Configurable;
+use SilverStripe\Core\Config\Config;
+use SilverStripe\Forms\FormField;
+
+
+class DisplayLogicCriteria
+{
+
+	use Extensible {
+		defineMethods as extensibleDefineMethods;
+	}
 	use Injectable;
-    use Configurable;
+	use Configurable;
 
 	/**
 	 * The name of the form field that depends on the criteria
@@ -49,7 +54,7 @@ class DisplayLogicCriteria {
 	 * A list of {@link DisplayLogicCriterion} objects
 	 * @var array
 	 */
-	protected $criteria = array ();
+	protected $criteria = [];
 
 
 
@@ -73,9 +78,10 @@ class DisplayLogicCriteria {
 	 * Changes the configured default animation method
 	 * @param string $animation
 	 */
-	public static function set_default_animation($animation) {
-		if(in_array($animation, Config::inst()->get(__CLASS__, 'animations'))) {
-			Config::inst()->update(__CLASS__, 'default_animation', $animation);
+	public static function set_default_animation($animation)
+	{
+		if (in_array($animation, Config::inst()->get(__CLASS__, 'animations'))) {
+			Config::modify()->set(__CLASS__, 'default_animation', $animation);
 		}
 	}
 
@@ -87,9 +93,8 @@ class DisplayLogicCriteria {
 	 * @param [type]    $master The name of the form field to respond to
 	 * @param [type]    $parent The parent {@link DisplayLogicCriteria}
 	 */
-	public function __construct(FormField $slave, $master, $parent = null) {
-//		parent::__construct();
-//		$this->constructExtensions();
+	public function __construct(FormField $slave, $master, $parent = null)
+	{
 		$this->slave = $slave;
 		$this->master = $master;
 		$this->parent = $parent;
@@ -105,19 +110,19 @@ class DisplayLogicCriteria {
 	 * @param  array $args The arguments
 	 * @return  DisplayLogicCriteria
 	 */
-	public function __call($method, $args) {		
-		if(in_array($method, $this->config()->comparisons)) {		
-			$val = isset($args[0]) ? $args[0] : null;				
-			if(substr($method, 0, 2) == "is") {
+	public function __call($method, $args)
+	{
+		if (in_array($method, $this->config()->comparisons)) {
+			$val = isset($args[0]) ? $args[0] : null;
+			if (substr($method, 0, 2) == "is") {
 				$operator = substr($method, 2);
-			}
-			else {
+			} else {
 				$operator = ucwords($method);
 			}
 
 			$this->addCriterion(DisplayLogicCriterion::create($this->master, $operator, $val, $this));
 			return $this;
-		}		
+		}
 		return parent::__call($method, $args);
 	}
 
@@ -130,7 +135,8 @@ class DisplayLogicCriteria {
 	 * @param  int  $max The maxiumum value
 	 * @return DisplayLogicCriteria
 	 */
-	public function isBetween($min, $max) {		
+	public function isBetween($min, $max)
+	{
 		$this->addCriterion(DisplayLogicCriterion::create($this->master, "Between", "{$min}-{$max}", $this));
 		return $this;
 	}
@@ -142,11 +148,12 @@ class DisplayLogicCriteria {
 	 * @param  string $master The master form field
 	 * @return DisplayLogicCriteria
 	 */
-	public function andIf($master = null) {
-		if($this->logicalOperator == "or") {
+	public function andIf($master = null)
+	{
+		if ($this->logicalOperator == "or") {
 			user_error("DisplayLogicCriteria: Cannot declare a logical operator more than once. (Specified andIf() after calling orIf()). Use a nested DisplayLogicCriteriaSet to combine conjunctive and disjuctive logic.",E_USER_ERROR);
 		}
-		if($master) $this->master = $master;
+		if ($master) $this->master = $master;
 		$this->logicalOperator = "and";
 		return $this;
 	}
@@ -159,11 +166,12 @@ class DisplayLogicCriteria {
 	 * @param  string $master The master form field
 	 * @return DisplayLogicCriteria
 	 */
-	public function orIf($master = null) {
-		if($this->logicalOperator == "and") {
+	public function orIf($master = null)
+	{
+		if ($this->logicalOperator == "and") {
 			user_error("DisplayLogicCriteria: Cannot declare a logical operator more than once. (Specified orIf() after calling andIf()). Use a nested DisplayLogicCriteriaSet to combine conjunctive and disjuctive logic.",E_USER_ERROR);
 		}
-		if($master) $this->master = $master;
+		if ($master) $this->master = $master;
 		$this->logicalOperator = "or";
 		return $this;
 	}
@@ -175,7 +183,8 @@ class DisplayLogicCriteria {
 	 * Adds a new criterion
 	 * @param DisplayLogicCriterion|DisplayLogicCriteria $c
 	 */
-	public function addCriterion($c) {		
+	public function addCriterion($c)
+	{
 		$this->criteria[] = $c;
 	}
 
@@ -185,7 +194,8 @@ class DisplayLogicCriteria {
 	 * Gets all the criteria
 	 * @return array
 	 */
-	public function getCriteria() {
+	public function getCriteria()
+	{
 		return $this->criteria;
 	}
 
@@ -195,7 +205,8 @@ class DisplayLogicCriteria {
 	 * Gets a Javascript symbol for the logical operator
 	 * @return string
 	 */
-	public function getLogicalOperator() {
+	public function getLogicalOperator()
+	{
 		return $this->logicalOperator == "or" ? "||" : "&&";
 	}
 
@@ -203,14 +214,16 @@ class DisplayLogicCriteria {
 	 * Accessor for the master field
 	 * @return string
 	 */
-	public function getMaster() {
+	public function getMaster()
+	{
 		return $this->master;
 	}
 
 	/**
 	 * @return $this
 	 */
-	public function setMaster($fieldName) {
+	public function setMaster($fieldName)
+	{
 		$this->master = $fieldName;
 		$criteria = $this->getCriteria();
 		if ($criteria) {
@@ -225,7 +238,8 @@ class DisplayLogicCriteria {
 	 * Creates a nested {@link DisplayLogicCriteria}
 	 * @return DisplayLogicCriteria
 	 */
-	public function group() {
+	public function group()
+	{
 		return DisplayLogicCriteria::create($this->slave, $this->master, $this);
 	}
 
@@ -237,8 +251,9 @@ class DisplayLogicCriteria {
 	 * @param string $animation
 	 * @return DisplayLogicCriteria
 	 */
-	public function useAnimation($animation) {
-		if(in_array($animation, $this->config()->animations)) {
+	public function useAnimation($animation)
+	{
+		if (in_array($animation, $this->config()->animations)) {
 			$this->animation = $animation;
 		}
 		return $this;
@@ -251,7 +266,8 @@ class DisplayLogicCriteria {
 	 * Answers the animation method to use
 	 * @return string
 	 */
-	public function getAnimation() {
+	public function getAnimation()
+	{
 		if(!$this->animation) {
 			return $this->config()->default_animation;
 		}
@@ -265,8 +281,9 @@ class DisplayLogicCriteria {
 	 * Ends the chaining and returns the parent object, either {@link DisplayLogicCriteria} or {@link FormField}
 	 * @return FormField/DisplayLogicCriteria
 	 */
-	public function end() {
-		if($this->parent) {
+	public function end()
+	{
+		if ($this->parent) {
 			$this->parent->addCriterion($this);
 			return $this->parent;
 		}
@@ -277,13 +294,14 @@ class DisplayLogicCriteria {
 
 
 	/**
-	 * Creates a JavaScript readable representation of the logic	 
+	 * Creates a JavaScript readable representation of the logic
 	 * @return string
 	 */
-	public function toScript() {
+	public function toScript()
+	{
 		$script = "(";
 		$first = true;
-		foreach($this->getCriteria() as $c) {
+		foreach ($this->getCriteria() as $c) {
 			$script .= $first ? "" :  " {$this->getLogicalOperator()} ";
 			$script .= $c->toScript();
 			$first = false;
@@ -297,15 +315,15 @@ class DisplayLogicCriteria {
 
 	/**
 	 * Gets a list of all the master fields in this criteria set
-	 * @return array
+	 * @return string
 	 */
-	public function getMasterList() {
-		$list = array ();
-		foreach($this->getCriteria() as $c) {
-			if($c instanceof DisplayLogicCriteria) {
-				$list=array_merge($list, $c->getMasterList());
-			}
-			else {
+	public function getMasterList()
+	{
+		$list = [];
+		foreach ($this->getCriteria() as $c) {
+			if ($c instanceof DisplayLogicCriteria) {
+				$list = array_merge($list, $c->getMasterList());
+			} else {
 				$list[] = $c->getMaster();
 			}
 		}
